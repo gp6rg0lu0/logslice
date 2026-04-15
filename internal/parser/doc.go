@@ -1,21 +1,24 @@
-// Package parser implements log-line parsers for logslice.
+// Package parser provides log line parsing for logslice.
 //
-// Currently supported formats:
+// # Supported Formats
 //
-//   - Newline-delimited JSON (JSONParser): each line must be a JSON object.
-//     All field values are normalised to strings so that the filter package
-//     can operate uniformly regardless of the original JSON type.
+// Two formats are currently supported:
 //
-// Parsers expose a simple iterator-style API:
+//   - JSON (FormatJSON): newline-delimited JSON objects. Each line is
+//     unmarshalled into a map[string]string; non-string values are
+//     converted to their string representation.
 //
-//	for {
-//	    entry, err := p.Next()
-//	    if err == io.EOF {
-//	        break
-//	    }
-//	    if err != nil {
-//	        // handle parse error
-//	    }
-//	    // use entry
+//   - Text (FormatText): plain-text lines matched against a named-group
+//     regular expression supplied by the caller. Each named capture group
+//     becomes a field on the resulting LogLine.
+//
+// # Usage
+//
+//	p, err := parser.New(parser.FormatJSON, "")
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//	for line := range p.Parse(os.Stdin) {
+//		fmt.Println(line.Level())
 //	}
 package parser
