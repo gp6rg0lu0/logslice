@@ -13,6 +13,7 @@ import (
 type TextParser struct {
 	re     *regexp.Regexp
 	scanner *bufio.Scanner
+	skipped int
 }
 
 // NewTextParser creates a TextParser that reads from r and parses each line
@@ -50,6 +51,7 @@ func (p *TextParser) Next() (*LogLine, error) {
 		}
 		match := p.re.FindStringSubmatch(line)
 		if match == nil {
+			p.skipped++
 			continue
 		}
 		fields := make(map[string]string)
@@ -64,4 +66,10 @@ func (p *TextParser) Next() (*LogLine, error) {
 		return nil, err
 	}
 	return nil, io.EOF
+}
+
+// Skipped returns the number of non-empty lines that did not match the pattern
+// and were skipped during parsing.
+func (p *TextParser) Skipped() int {
+	return p.skipped
 }
