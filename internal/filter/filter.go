@@ -37,3 +37,12 @@ func (c *Chain) Match(entry map[string]string) bool {
 func (c *Chain) Len() int {
 	return len(c.filters)
 }
+
+// Add appends one or more filters to the chain. Nil filters are ignored.
+func (c *Chain) Add(filters ...Filter) {
+	for _, f := range filters {
+		if f != nil {
+			c.filters = append(c.filters, f)
+		}
+	}
+}
