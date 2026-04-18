@@ -45,17 +45,20 @@ func TestParseTypeFlag_Valid(t *testing.T) {
 }
 
 func TestParseTypeFlag_Errors(t *testing.T) {
-	bad := []string{
-		"nocodon",
-		":string",
-		"field:",
-		"field:integer",
+	bad := []struct {
+		input   string
+		reason string
+	}{
+		{"nocodon", "missing colon separator"},
+		{":string", "empty field name"},
+		{"field:", "empty type"},
+		{"field:integer", "unsupported type name"},
 	}
-	for _, s := range bad {
-		t.Run(s, func(t *testing.T) {
-			_, err := cli.ParseTypeFlag(s)
+	for _, tt := range bad {
+		t.Run(tt.input, func(t *testing.T) {
+			_, err := cli.ParseTypeFlag(tt.input)
 			if err == nil {
-				t.Errorf("expected error for input %q", s)
+				t.Errorf("expected error for input %q (%s)", tt.input, tt.reason)
 			}
 		})
 	}
