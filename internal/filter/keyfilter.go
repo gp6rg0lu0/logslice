@@ -54,3 +54,12 @@ func (f *KeyFilter) Field() string { return f.field }
 
 // Keys returns the raw keys string.
 func (f *KeyFilter) Keys() string { return f.raw }
+
+// KeyList returns the parsed set of allowed keys as a slice.
+func (f *KeyFilter) KeyList() []string {
+	list := make([]string, 0, len(f.keys))
+	for k := range f.keys {
+		list = append(list, k)
+	}
+	return list
+}
