@@ -52,6 +52,19 @@ func parseFlags(args []string) (*Config, error) {
 	return cfg, nil
 }
 
+// openInput returns a ReadCloser for the configured input source.
+// If no file is specified, it returns os.Stdin wrapped in a NopCloser.
+func openInput(cfg *Config) (io.ReadCloser, error) {
+	if cfg.InputFile == "" {
+		return io.NopCloser(os.Stdin), nil
+	}
+	f, err := os.Open(cfg.InputFile)
+	if err != nil {
+		return nil, fmt.Errorf("open input: %w", err)
+	}
+	return f, nil
+}
+
 func run(cfg *Config) error {
 	// Build filter chain.
 	var filters []filter.Filter
@@ -83,15 +96,11 @@ func run(cfg *Config) error {
 	chain := filter.NewChain(filters...)
 
 	// Open input.
-	var src io.Reader = os.Stdin
-	if cfg.InputFile != "" {
-		f, err := os.Open(cfg.InputFile)
-		if err != nil {
-			return fmt.Errorf("open input: %w", err)
-		}
-		defer f.Close()
-		src = f
+	src, err := openInput(cfg)
+	if err != nil {
+		return err
 	}
+	defer src.Close()
 
 	p := parser.NewJSONParser(src)
 	w := output.NewWriter(os.Stdout, cfg.Format)
