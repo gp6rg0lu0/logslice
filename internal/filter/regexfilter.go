@@ -41,6 +41,12 @@ func (f *RegexFilter) Match(line *parser.LogLine) bool {
 	return f.pattern.MatchString(val)
 }
 
+// String returns a human-readable description of the filter, useful for
+// logging and debugging purposes.
+func (f *RegexFilter) String() string {
+	return fmt.Sprintf("RegexFilter{field: %q, pattern: %q}", f.field, f.pattern.String())
+}
+
 // Field returns the field name this filter operates on.
 func (f *RegexFilter) Field() string { return f.field }
 
